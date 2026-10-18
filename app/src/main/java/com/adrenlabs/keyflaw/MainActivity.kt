@@ -41,6 +41,7 @@ private fun EditorApp() {
     var progress by remember { mutableFloatStateOf(0.28f) }
     var selectedTab by remember { mutableStateOf("Edit") }
     var selectedLayer by remember { mutableIntStateOf(0) }
+    val layers = remember { mutableStateListOf("Shape 01", "Background") }
     val transition = rememberInfiniteTransition(label = "preview")
     val motion by transition.animateFloat(0f, 1f, infiniteRepeatable(tween(2200, easing = LinearEasing), RepeatMode.Reverse), label = "motion")
     LaunchedEffect(playing) {
@@ -100,19 +101,19 @@ private fun EditorApp() {
             Spacer(Modifier.height(18.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("TIMELINE", color = Muted, fontSize = 10.sp, letterSpacing = 1.8.sp, modifier = Modifier.weight(1f))
-                Text("＋ ADD LAYER", color = Lime, fontSize = 10.sp, modifier = Modifier.clickable { selectedLayer = (selectedLayer + 1) % 3 }.padding(6.dp))
+                Text("＋ ADD LAYER", color = Lime, fontSize = 10.sp, modifier = Modifier.clickable { layers.add("Shape %02d".format(layers.size)); selectedLayer = layers.lastIndex }.padding(6.dp))
             }
             Spacer(Modifier.height(8.dp))
-            repeat(2) { index ->
+            layers.forEachIndexed { index, layerName ->
                 Row(Modifier.fillMaxWidth().padding(bottom = 7.dp).background(Panel, RoundedCornerShape(10.dp)).border(1.dp, if (selectedLayer == index) Lime.copy(alpha = 0.7f) else Line, RoundedCornerShape(10.dp)).clickable { selectedLayer = index }.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(if (index == 0) "▧" else "◇", color = Lime, fontSize = 16.sp)
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(if (index == 0) "Shape 01" else "Background", fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                        Text(if (index == 0) "Transform · Opacity" else "Solid · #0A0D12", color = Muted, fontSize = 10.sp)
+                        Text(layerName, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(if (layerName == "Background") "Solid · #0A0D12" else "Transform · Opacity", color = Muted, fontSize = 10.sp)
                     }
-                    Box(Modifier.fillMaxWidth(0.42f).height(23.dp).background(if (index == 0) Color(0xFF31452A) else Color(0xFF252D39), RoundedCornerShape(5.dp))) {
-                        Box(Modifier.fillMaxWidth(if (index == 0) 0.72f else 1f).fillMaxHeight().background(if (index == 0) Lime else Color(0xFF4A5667), RoundedCornerShape(5.dp)))
+                    Box(Modifier.fillMaxWidth(0.42f).height(23.dp).background(if (layerName != "Background") Color(0xFF31452A) else Color(0xFF252D39), RoundedCornerShape(5.dp))) {
+                        Box(Modifier.fillMaxWidth(if (layerName != "Background") 0.72f else 1f).fillMaxHeight().background(if (layerName != "Background") Lime else Color(0xFF4A5667), RoundedCornerShape(5.dp)))
                     }
                 }
             }
